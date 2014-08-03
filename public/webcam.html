@@ -11,6 +11,7 @@
   <script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>
 
   <script>
+    var prevRotations = {};
     var socket = io('http://localhost');
     var video, canvas, context, imageData, detector, posit;
     var renderer1, renderer2, renderer3;
@@ -178,7 +179,7 @@
 
         if (ids.indexOf(markers[i].id) === -1) {
           ids.push(markers[i].id);
-          allData.push(getPose(markers[i].id, pose.bestRotation, pose.bestTranslation));
+          allData.push(getPose(markers[i].id, pose.bestRotation, post.alternateRotation, pose.bestTranslation));
         }
 
       }
@@ -187,17 +188,32 @@
 
     };
 
+    function dist(v1, v2) {
+      return Math.pow(v1[0]-v2[0],2) + Math.pow(v1[1]-v2[1],2) + Math.pow(v1[2]-v2[2],2);
+    }
 
-    function getPose(id, rotation, translation) {
-      var yaw = -Math.atan2(rotation[0][2], rotation[2][2]);
-      var pitch = -Math.asin(-rotation[1][2]);
-      var roll = Math.atan2(rotation[1][0], rotation[1][1]);
+
+    function getPose(id, altRotation, bestRotation, translation) {
+      var ayaw = -Math.atan2(altRotation[0][2], altRotation[2][2]);
+      var apitch = -Math.asin(-altRotation[1][2]);
+      var aroll = Math.atan2(altRotation[1][0], altRotation[1][1]);
+      var byaw = -Math.atan2(bestRotation[0][2], bestRotation[2][2]);
+      var bpitch = -Math.asin(-bestRotation[1][2]);
+      var broll = Math.atan2(bestRotation[1][0], bestRotation[1][1]);
+      var yaw, pitch, roll, newRotation;
+      if (prevRotations[id]) {
+        var oldVector = prevRotations[id];
+        newRotation = dist([ayaw, apitch, aroll], oldVector) < dist([byaw, bpitch, broll], oldVector) ? [ayaw, apitch, aroll] : [byaw, bpitch, broll];
+      } else {
+        newRotation = [byaw, bpitch, broll];
+      }
+      prevRotations[id] = newRotation;
 
       var x = (translation[0] | 0);
       var y = (translation[1] | 0);
       var z = (translation[2] | 0);
 
-      return {id: id, yaw: yaw, pitch: pitch, roll: roll, x: x, y: y, z: z};
+      return {id: id, yaw: newRotation[0], pitch: newRotation[1], roll: newRotation[2], x: x, y: y, z: z};
     }
 
     window.onload = onLoad;
