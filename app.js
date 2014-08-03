@@ -12,6 +12,9 @@ var router = express.Router();
 var data = [];
 var socketData;
 
+// data is an array of events
+// The format is
+// { t: timestamp, e: eventType, x: horizontal distance, y: vertical distance }
 router.get('/', function(req, res) {
   res.json(data);
   data = [];
