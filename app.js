@@ -10,8 +10,8 @@ var bodyParser = require('body-parser');
 var router = express.Router();
 
 var data = [];
+var distanceToRift = [];
 var socketData;
-var distanceToRift;
 
 // data is an array of events
 // The format is
@@ -28,9 +28,19 @@ router.post('/', function(req, res) {
   res.send(200);
 });
 
-router.get('/data', function(req, res) {
-  // res.json(socketData)
+router.get('/rift', function(req, res) {
   res.json(distanceToRift);
+  distanceToRift = [];
+});
+
+router.post('/rift', function(req, res) {
+  distanceToRift.push(req.body);
+  console.log(distanceToRift);
+  res.send(200);
+});
+
+router.get('/data', function(req, res) {
+  res.json(socketData)
 });
 
 router.post('/data', function(req, res) {
