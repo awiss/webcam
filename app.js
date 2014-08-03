@@ -11,6 +11,7 @@ var router = express.Router();
 
 var data = [];
 var socketData;
+var distanceToRift;
 
 // data is an array of events
 // The format is
@@ -28,7 +29,13 @@ router.post('/', function(req, res) {
 });
 
 router.get('/data', function(req, res) {
-  res.json(socketData)
+  // res.json(socketData)
+  res.json(distanceToRift);
+});
+
+router.post('/data', function(req, res) {
+  distanceToRift = req.body;
+  res.send(200);
 });
 
 app.use(logger('dev'));
