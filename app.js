@@ -10,9 +10,10 @@ var bodyParser = require('body-parser');
 var router = express.Router();
 
 var data;
+var socketData;
 
 router.get('/', function(req, res) {
-
+  res.json(data);
 });
 
 
@@ -20,6 +21,10 @@ router.post('/', function(req, res) {
   data = req.body;
   console.log(data);
   res.send(200);
+});
+
+router.get('/data', function(req, res) {
+  res.json(socketData)
 });
 
 app.use(logger('dev'));
@@ -34,9 +39,13 @@ server.listen(8080);
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
   socket.on('events', function (data) {
-    console.log(data);
+    if (data !== socketData) {
+      console.log(data);
+    }
+    socketData = data;
   });
   socket.on('message', function (data) {
-    console.log(data);
+    console.log(data.length);
+    socketData = data;
   });
 });
