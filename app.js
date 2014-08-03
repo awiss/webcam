@@ -9,16 +9,17 @@ var bodyParser = require('body-parser');
 
 var router = express.Router();
 
-var data;
+var data = [];
 var socketData;
 
 router.get('/', function(req, res) {
   res.json(data);
+  data = [];
 });
 
 
 router.post('/', function(req, res) {
-  data = req.body;
+  data.push(req.body);
   console.log(data);
   res.send(200);
 });
